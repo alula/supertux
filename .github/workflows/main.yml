@@ -80,8 +80,8 @@ jobs:
             gtk-doc-tools \
             rpm \
             sshpass \
-            clang-6.0 \
-            g++-8 \
+            clang \
+            g++-10 \
             gcc-multilib \
             g++-multilib \
             libgtest-dev \
@@ -101,6 +101,8 @@ jobs:
             libcurl4-openssl-dev \
             libglm-dev \
             zlib1g-dev
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
           sudo patch /usr/include/boost/format/alt_sstream_impl.hpp mk/ubuntu/boost-allocator.patch
       - name: Install 32-bit linux dependencies
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch == 32 }}
