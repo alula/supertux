@@ -88,8 +88,9 @@ CommandLineArguments::print_acknowledgements() const
 }
 
 void
-CommandLineArguments::print_help(const char* arg0) const
+CommandLineArguments::print_help(const char* arg0_c) const
 {
+  std::string arg0 = arg0_c;
   std::cerr
     << fmt::format(fmt::runtime(_("Usage: {} [OPTIONS] [LEVELFILE]")), arg0) << "\n" << "\n"
     << _("General Options:") << "\n"
