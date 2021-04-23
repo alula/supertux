@@ -27,6 +27,8 @@
 #include "audio/stream_sound_source.hpp"
 #include "util/log.hpp"
 
+namespace supertux {
+
 SoundManager::SoundManager() :
   m_device(alcOpenDevice(nullptr)),
   m_context(alcCreateContext(m_device, nullptr)),
@@ -529,5 +531,7 @@ SoundManager::check_al_error(const char* message)
     throw std::runtime_error(msg.str());
   }
 }
+
+} // namespace supertux
 
 /* EOF */
