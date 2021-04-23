@@ -43,7 +43,7 @@ jobs:
         with:
           # Fetch the whole tree so git describe works
           fetch-depth: 0
-          submodules: true
+          submodules: 'recursive'
       - name: Build in FreeBSD
         if: ${{ matrix.vm_os == 'freebsd' }}
         env:
@@ -54,20 +54,25 @@ jobs:
           sync: rsync
           usesh: true
           prepare: |
-            pkg install -y pkgconf
-            pkg install -y git
-            pkg install -y cmake
-            pkg install -y googletest
-            pkg install -y sdl2
-            pkg install -y sdl2_image
-            pkg install -y openal-soft
-            pkg install -y glew
-            pkg install -y curl
-            pkg install -y libogg
-            pkg install -y libvorbis
-            pkg install -y freetype
-            pkg install -y libraqm
-            pkg install -y glm
+            pkg install -y \
+              pkgconf \
+              git \
+              cmake \
+              googletest \
+              sdl2 \
+              sdl2_image \
+              glew \
+              boost-all \
+              curl \
+              freetype \
+              libraqm \
+              openal-soft \
+              libmodplug \
+              libogg \
+              libvorbis \
+              opusfile \
+              mpg123
+              glm
           run: |
             mkdir build && cd build
             cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DWARNINGS=ON -DWERROR=ON -DBUILD_TESTS=ON -DCMAKE_INSTALL_MESSAGE=NEVER -DCMAKE_INSTALL_PREFIX=/usr -DINSTALL_SUBDIR_BIN=bin -DINSTALL_SUBDIR_SHARE=share/supertux2
@@ -93,7 +98,7 @@ jobs:
         with:
           # Fetch the whole tree so git describe works
           fetch-depth: 0
-          submodules: true
+          submodules: 'recursive'
       - name: Install clickable
         run: |
           # For whatever reason, I have to manually install runc before docker.io or containerd, else it fails because of broken dependency
