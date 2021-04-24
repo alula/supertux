@@ -946,13 +946,18 @@ endif()
 target_include_directories(partio_zip_lib PUBLIC external/partio_zip/)
 
 if (NOT EMSCRIPTEN)
-  target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
-  target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
-  if(VCPKG_BUILD AND NOT WIN32)
-    target_link_libraries(supertux2_lib PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2::SDL2_image)
+  if(VCPKG_BUILD)
+    target_link_libraries(supertux2_lib PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2_image)
   else()
-    target_link_libraries(supertux2_lib PUBLIC ${SDL2_LIBRARIES})
-    target_link_libraries(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
+    target_include_directories(supertux2_lib SYSTEM PUBLIC
+      ${SDL2_INCLUDE_DIRS}
+      ${SDL2IMAGE_INCLUDE_DIRS})
+    target_link_directories(supertux2_lib PUBLIC
+      ${SDL2_LIBRARY_DIRS}
+      ${SDL2IMAGE_LIBRARY_DIRS})
+    target_link_libraries(supertux2_lib PUBLIC
+      ${SDL2_LIBRARIES}
+      ${SDL2IMAGE_LIBRARIES})
   endif()
 endif()
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL_TTF_PREFIX}/include/SDL2)
