@@ -148,6 +148,11 @@ if(WIN32)
   endif()
 endif(WIN32)
 
+if(APPLE OR ${CMAKE_SYSTEM_NAME} EQUAL "FreeBSD")
+  # This is not included by default for some reason, so add it manually
+  link_directories(/usr/local/lib)
+endif()
+
 # Detect mobile builds
 option(UBUNTU_TOUCH "Compile the project for an Ubuntu Touch target" OFF)
 
