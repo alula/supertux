@@ -62,7 +62,6 @@ jobs:
             pkg install -y sdl2_image
             pkg install -y openal-soft
             pkg install -y glew
-            pkg install -y boost-all
             pkg install -y curl
             pkg install -y libogg
             pkg install -y libvorbis
@@ -157,12 +156,6 @@ jobs:
           git clone https://github.com/microsoft/vcpkg
           ./vcpkg/bootstrap-vcpkg.sh
           ./vcpkg/vcpkg integrate install
-          ./vcpkg/vcpkg install boost-date-time:wasm32-emscripten
-          ./vcpkg/vcpkg install boost-filesystem:wasm32-emscripten
-          ./vcpkg/vcpkg install boost-format:wasm32-emscripten
-          ./vcpkg/vcpkg install boost-locale:wasm32-emscripten
-          ./vcpkg/vcpkg install boost-optional:wasm32-emscripten
-          ./vcpkg/vcpkg install boost-system:wasm32-emscripten
           ./vcpkg/vcpkg install glbinding:wasm32-emscripten
           ./vcpkg/vcpkg install libpng:wasm32-emscripten
           ./vcpkg/vcpkg install libogg:wasm32-emscripten
