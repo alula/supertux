@@ -121,7 +121,6 @@ if(WIN32)
   if(NOT VCPKG_BUILD)
     set(ENV{PATH} "$ENV{PATH};${DEPENDENCY_FOLDER}/include")
     set(ENV{LIB} "${DEPENDENCY_FOLDER}/lib")
-    set(ENV{OPENALDIR} "${DEPENDENCY_FOLDER}")
   endif()
 
   ## Enable multi-processor compilation (faster)
@@ -287,9 +286,6 @@ endif(ENABLE_OPENGL)
 if(EMSCRIPTEN)
   include_directories(${CMAKE_SOURCE_DIR}/mk/emscripten/AL)
 endif()
-
-find_package(OggVorbis REQUIRED)
-include_directories(SYSTEM ${VORBIS_INCLUDE_DIR})
 
 include(CheckSymbolExists)
 
@@ -978,16 +974,10 @@ target_link_libraries(supertux2_lib PUBLIC partio_zip_lib)
 if(ENABLE_DISCORD)
 target_link_libraries(supertux2_lib PUBLIC discord-rpc)
 endif(ENABLE_DISCORD)
-if(NOT EMSCRIPTEN)
-  if(VCPKG_BUILD)
-    target_link_libraries(supertux2_lib PUBLIC OpenAL::OpenAL)
-  else()
-    target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
-  endif()
-else()
+
+if(EMSCRIPTEN)
   link_libraries(-lopenal)
 endif()
-target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
 
 # Mark fmt includes as SYSTEM to avoid warnings
 get_target_property(FMT_INCLUDE_DIRS fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
@@ -1299,21 +1289,8 @@ mark_as_advanced(
   )
 
 mark_as_advanced(
-  OPENAL_INCLUDE_DIR
-  OPENAL_LIBRARY
-  )
-
-mark_as_advanced(
   SDL2TTF_INCLUDE_DIRS
   SDL2TTF_LIBRARIES
-  )
-
-mark_as_advanced(
-  OGG_LIBRARY
-  VORBISENC_LIBRARY
-  VORBISFILE_LIBRARY
-  VORBIS_INCLUDE_DIR
-  VORBIS_LIBRARY
   )
 
 mark_as_advanced(
