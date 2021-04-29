@@ -180,6 +180,7 @@ jobs:
             opus \
             opusfile \
             mpg123
+          echo "OPENALDIR=/usr/local/opt/openal-soft/" >> $GITHUB_ENV
           # Something funky happens with freetype if mono is left
           sudo mv /Library/Frameworks/Mono.framework /Library/Frameworks/Mono.framework-disabled
       - name: Set compiler (gcc)
