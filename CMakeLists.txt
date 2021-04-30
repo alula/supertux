@@ -300,7 +300,13 @@ else(HAVE_PHYSFS_GETPREFDIR)
   set(USE_SYSTEM_PHYSFS OFF CACHE BOOL "Use preinstalled physfs (must support getPrefDir)")
 endif(HAVE_PHYSFS_GETPREFDIR)
 
-if(NOT USE_SYSTEM_PHYSFS)
+if(USE_SYSTEM_PHYSFS)
+  add_library(physfs_lib UNKNOWN IMPORTED)
+  set_target_properties(physfs_lib PROPERTIES
+    IMPORTED_LOCATION "${PHYSFS_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${PHYSFS_INCLUDE_DIR}"
+    )
+else()
   if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/CMakeLists.txt)
     message(FATAL_ERROR "physfs submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/CMakeLists.txt is missing")
   endif()
@@ -333,17 +339,21 @@ if(NOT USE_SYSTEM_PHYSFS)
 
   if(WIN32)
     add_library(physfs_lib SHARED IMPORTED)
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_LOCATION "${PHYSFS_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}physfs${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_IMPLIB "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/physfs${CMAKE_LINK_LIBRARY_SUFFIX}")
+    set_target_properties(physfs_lib PROPERTIES
+      IMPORTED_LOCATION "${PHYSFS_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}physfs${CMAKE_SHARED_LIBRARY_SUFFIX}"
+      IMPORTED_IMPLIB "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/physfs${CMAKE_LINK_LIBRARY_SUFFIX}"
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/src"
+      )
   else()
     add_library(physfs_lib STATIC IMPORTED)
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_LOCATION "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    set_target_properties(physfs_lib PROPERTIES
+      IMPORTED_LOCATION "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}"
+      INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/src"
+      )
   endif()
-  set(PHYSFS_INCLUDE_DIR "${PHYSFS_PREFIX}/include/")
+
+  add_dependencies(physfs_lib physfs)
 endif()
-
-include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
-
 
 ## The curl headers are in the standard include path in dependencies
 ## so it's not required to add them here
@@ -913,7 +923,6 @@ else()
 endif(WIN32)
 
 target_link_libraries(supertux2 supertux2_lib)
-target_link_libraries(supertux2 glm::glm)
 
 set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2_lib)
 set_target_properties(supertux2_lib PROPERTIES COMPILE_FLAGS "${SUPERTUX2_EXTRA_WARNING_FLAGS}")
@@ -990,12 +999,8 @@ target_include_directories(supertux2_lib SYSTEM PUBLIC ${FMT_INCLUDE_DIRS})
 target_link_libraries(supertux2_lib PUBLIC fmt::fmt)
 
 target_link_libraries(supertux2_lib PUBLIC glm::glm)
-
-if(USE_SYSTEM_PHYSFS)
-  target_link_libraries(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
-else()
-  add_dependencies(supertux2_lib physfs)
-  target_link_libraries(supertux2_lib PUBLIC physfs_lib)
+target_link_libraries(supertux2_lib PUBLIC physfs_lib)
+if(NOT USE_SYSTEM_PHYSFS)
   if(APPLE)
     target_link_libraries(supertux2_lib PUBLIC "-framework CoreFoundation")
     target_link_libraries(supertux2_lib PUBLIC "-framework Foundation")
