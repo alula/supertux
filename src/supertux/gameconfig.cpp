@@ -127,7 +127,7 @@ Config::load()
 
   editor_autotile_help = !developer_mode;
 
-  boost::optional<ReaderMapping> editor_mapping;
+  std::optional<ReaderMapping> editor_mapping;
   if (config_mapping.get("editor", editor_mapping))
   {
     editor_mapping->get("autosave_frequency", editor_autosave_frequency);
