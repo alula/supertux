@@ -287,7 +287,6 @@ jobs:
           vcpkg install gtest:$Env:ARCH-windows
           vcpkg install boost-date-time:$Env:ARCH-windows
           vcpkg install boost-filesystem:$Env:ARCH-windows
-          vcpkg install boost-format:$Env:ARCH-windows
           vcpkg install boost-iostreams:$Env:ARCH-windows
           vcpkg install boost-locale:$Env:ARCH-windows
           vcpkg install boost-optional:$Env:ARCH-windows
