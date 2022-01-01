@@ -281,9 +281,9 @@ GLVideoSystem::get_back_renderer() const
 }
 
 TexturePtr
-GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, float scale)
 {
-  return TexturePtr(new GLTexture(image, sampler));
+  return TexturePtr(new GLTexture(image, sampler, scale));
 }
 
 void

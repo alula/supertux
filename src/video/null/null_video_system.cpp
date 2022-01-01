@@ -57,7 +57,7 @@ NullVideoSystem::get_lightmap() const
 }
 
 TexturePtr
-NullVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+NullVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, float scale)
 {
   return TexturePtr(new NullTexture(Size(image.w, image.h)));
 }

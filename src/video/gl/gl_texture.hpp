@@ -33,7 +33,7 @@ class GLTexture final : public Texture
 {
 public:
   GLTexture(int width, int height, boost::optional<Color> fill_color = boost::none);
-  GLTexture(const SDL_Surface& image, const Sampler& sampler);
+  GLTexture(const SDL_Surface& image, const Sampler& sampler, float scale = 1.0f);
   ~GLTexture() override;
 
   virtual int get_texture_width() const override { return m_texture_width; }

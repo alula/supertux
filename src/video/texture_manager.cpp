@@ -277,7 +277,17 @@ TextureManager::get_surface(const std::string& filename)
   }
   else
   {
-    SDLSurfacePtr image = SDLSurface::from_file(filename);
+    SDLSurfacePtr image;
+    size_t scale = 1;
+    try {
+      auto upscaled_filename = "upscaled/" + filename;
+      image = SDLSurface::from_file(upscaled_filename);
+      scale = 2;
+    } catch (const std::runtime_error& err) {
+      image = SDLSurface::from_file(filename);
+      scale = 1;
+    }
+
     if (!image)
     {
       std::ostringstream msg;
@@ -285,6 +295,7 @@ TextureManager::get_surface(const std::string& filename)
       throw std::runtime_error(msg.str());
     }
 
+    image->userdata = reinterpret_cast<void*>(scale);
     return *(m_surfaces[filename] = std::move(image));
   }
 }
@@ -295,6 +306,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
   assert(rect.valid());
 
   const SDL_Surface& src_surface = get_surface(filename);
+  const int scale = reinterpret_cast<size_t>(src_surface.userdata);
 
   SDLSurfacePtr convert;
   if (src_surface.format->Rmask == 0 &&
@@ -309,24 +321,24 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
   const SDL_Surface& surface = convert ? *convert : src_surface;
 
   SDLSurfacePtr subimage;
-  if (!Rect(0, 0, surface.w, surface.h).contains(rect))
+  if (!Rect(0, 0, surface.w / scale, surface.h / scale).contains(rect))
   {
     log_warning << filename << ": invalid subregion requested: image="
                 << surface.w << "x" << surface.h << ", rect=" << rect << std::endl;
 
     subimage = SDLSurfacePtr(SDL_CreateRGBSurface(0,
-                                                  rect.get_width(),
-                                                  rect.get_height(),
+                                                  rect.get_width() * scale,
+                                                  rect.get_height() * scale,
                                                   surface.format->BitsPerPixel,
                                                   surface.format->Rmask,
                                                   surface.format->Gmask,
                                                   surface.format->Bmask,
                                                   surface.format->Amask));
 
-    Rect clipped_rect(std::max(0, rect.left),
-                      std::max(0, rect.top),
-                      std::min(subimage->w, rect.right),
-                      std::min(subimage->w, rect.bottom));
+    Rect clipped_rect(std::max(0, rect.left * scale),
+                      std::max(0, rect.top * scale),
+                      std::min(subimage->w, rect.right * scale),
+                      std::min(subimage->w, rect.bottom * scale));
 
     SDL_Rect srcrect = clipped_rect.to_sdl();
     SDL_BlitSurface(const_cast<SDL_Surface*>(&surface), &srcrect, subimage.get(), nullptr);
@@ -334,9 +346,9 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
   else
   {
     subimage = SDLSurfacePtr(SDL_CreateRGBSurfaceFrom(static_cast<uint8_t*>(surface.pixels) +
-                                                      rect.top * surface.pitch +
-                                                      rect.left * surface.format->BytesPerPixel,
-                                                      rect.get_width(), rect.get_height(),
+                                                      (rect.top * scale) * surface.pitch +
+                                                      (rect.left * scale) * surface.format->BytesPerPixel,
+                                                      rect.get_width() * scale, rect.get_height() * scale,
                                                       surface.format->BitsPerPixel,
                                                       surface.pitch,
                                                       surface.format->Rmask,
@@ -349,7 +361,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
     }
   }
 
-  return VideoSystem::current()->new_texture(*subimage, sampler);
+  return VideoSystem::current()->new_texture(*subimage, sampler, 1.0f / (float)scale);
 }
 
 TexturePtr
@@ -369,7 +381,16 @@ TextureManager::create_image_texture(const std::string& filename, const Sampler&
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename, const Sampler& sampler)
 {
-  SDLSurfacePtr image = SDLSurface::from_file(filename);
+  SDLSurfacePtr image;
+  float scale = 0.5f;
+  try {
+    auto upscaled_filename = "upscaled/" + filename;
+    image = SDLSurface::from_file(upscaled_filename);
+  } catch (const std::runtime_error& err) {
+    image = SDLSurface::from_file(filename);
+    scale = 1.0f;
+  }
+
   if (!image)
   {
     std::ostringstream msg;
@@ -378,7 +399,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Samp
   }
   else
   {
-    TexturePtr texture = VideoSystem::current()->new_texture(*image, sampler);
+    TexturePtr texture = VideoSystem::current()->new_texture(*image, sampler, scale);
     image.reset(nullptr);
     return texture;
   }

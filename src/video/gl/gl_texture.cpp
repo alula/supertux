@@ -67,7 +67,7 @@ GLTexture::GLTexture(int width, int height, boost::optional<Color> fill_color) :
   assert_gl();
 }
 
-GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
+GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler, float scale) :
   m_handle(),
   m_sampler(sampler),
   m_texture_width(),
@@ -184,6 +184,10 @@ GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
     glDeleteTextures(1, &m_handle);
     throw;
   }
+  m_image_width *= scale;
+  m_image_height *= scale;
+  m_texture_width *= scale;
+  m_texture_height *= scale;
 
   assert_gl();
 }
