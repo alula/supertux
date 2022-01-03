@@ -33,9 +33,10 @@ TTFFont::TTFFont(const std::string& filename, int font_size, float line_spacing,
   m_font_size(font_size),
   m_line_spacing(line_spacing),
   m_shadow_size(shadow_size),
-  m_border(border)
+  m_border(border),
+  m_scale(2.0f)
 {
-  m_font = TTF_OpenFontRW(get_physfs_SDLRWops(m_filename), 1, font_size);
+  m_font = TTF_OpenFontRW(get_physfs_SDLRWops(m_filename), 1, font_size * m_scale);
   if (!m_font)
   {
     std::ostringstream msg;
@@ -76,7 +77,7 @@ TTFFont::get_text_width(const std::string& text) const
       }
       line_width = w;
     }
-    max_width = std::max(max_width, static_cast<float>(line_width));
+    max_width = std::max(max_width, static_cast<float>(line_width / m_scale));
   }
 
   return max_width;
@@ -101,7 +102,7 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
                    const Vector& pos, FontAlignment alignment, int layer, const Color& color)
 
 {
-  float last_y = pos.y - (static_cast<float>(TTF_FontHeight(m_font)) - get_height()) / 2.0f;
+  float last_y = pos.y - (static_cast<float>(TTF_FontHeight(m_font) / m_scale) - get_height()) / 2.0f;
 
   LineIterator iter(text);
   while (iter.next())
@@ -116,15 +117,21 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
 
       if (alignment == ALIGN_CENTER)
       {
-        new_pos.x -= static_cast<float>(ttf_surface->get_width()) / 2.0f;
+        new_pos.x -= (static_cast<float>(ttf_surface->get_width()) / 2.0f) / m_scale;
       }
       else if (alignment == ALIGN_RIGHT)
       {
-        new_pos.x -= static_cast<float>(ttf_surface->get_width());
+        new_pos.x -= static_cast<float>(ttf_surface->get_width()) / m_scale;
       }
 
+      Rectf dst_rect = { glm::floor(new_pos), (Sizef){ ttf_surface->get_width() / m_scale, ttf_surface->get_height() / m_scale} };
+
       // draw text
-      canvas.draw_surface(ttf_surface->get_surface(), glm::floor(new_pos), 0.0f, color, Blend(), layer);
+      // canvas.draw_surface(ttf_surface->get_surface(), glm::floor(new_pos), 0.0f, color, Blend(), layer);
+      PaintStyle style;
+      style.set_color(color);
+
+      canvas.draw_surface_scaled(ttf_surface->get_surface(), dst_rect, layer, style);
     }
 
     last_y += get_height();

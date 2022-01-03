@@ -51,6 +51,7 @@ public:
 
   int get_shadow_size() const { return m_shadow_size; }
   int get_border() const { return m_border; }
+  float get_scale() const { return m_scale; }
 
   TTF_Font* get_ttf_font() const { return m_font; }
 
@@ -61,6 +62,7 @@ private:
   float m_line_spacing;
   int m_shadow_size;
   int m_border;
+  float m_scale;
 
 private:
   TTFFont(const TTFFont&) = delete;

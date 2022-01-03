@@ -40,7 +40,7 @@ TTFSurface::create(const TTFFont& font, const std::string& text)
   }
 
   // FIXME: handle shadow offset
-  int grow = std::max(font.get_border() * 2, font.get_shadow_size() * 2);
+  int grow = std::max(font.get_border() * font.get_scale() * 2, font.get_shadow_size() * font.get_scale() * 2);
 
   SDLSurfacePtr target = SDLSurface::create_rgba(text_surface->w + grow, text_surface->h + grow);
 
@@ -67,7 +67,12 @@ TTFSurface::create(const TTFFont& font, const std::string& text)
     int shadow_size = std::min(2, font.get_shadow_size());
     for (const auto& p : positions[shadow_size])
     {
-      SDL_Rect dstrect{std::get<0>(p) + 2, std::get<1>(p) + 2, text_surface->w, text_surface->h};
+      SDL_Rect dstrect{
+        (int) ((std::get<0>(p) + 2.0f) * font.get_scale()),
+        (int) ((std::get<1>(p) + 2.0f) * font.get_scale()),
+        text_surface->w, text_surface->h
+      };
+
       SDL_BlitSurface(text_surface.get(), nullptr,
                       target.get(), &dstrect);
     }
@@ -89,7 +94,12 @@ TTFSurface::create(const TTFFont& font, const std::string& text)
     int border = std::min(2, font.get_border());
     for (const auto& p : positions[border])
     {
-      SDL_Rect dstrect{std::get<0>(p), std::get<1>(p), text_surface->w, text_surface->h};
+      SDL_Rect dstrect{
+        (int) (std::get<0>(p) * font.get_scale()),
+        (int) (std::get<1>(p) * font.get_scale()),
+        text_surface->w, text_surface->h
+      };
+
       SDL_BlitSurface(text_surface.get(), nullptr,
                       target.get(), &dstrect);
     }
